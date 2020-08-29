@@ -102,6 +102,7 @@ view.setActiveScreen = async(screen, id) => {
                 document.getElementById('app').innerHTML = components.selectRoomScreen
                 let listenChat = model.listenConversation()
                 let listenRoomChange =  model.listenRoomChange() 
+                view.onclickNotification()
                 model.rooms=[]
                 document.querySelector('.new-room-bnt').addEventListener('click', () => {
                     view.setActiveScreen('createRoomScreen')
@@ -146,17 +147,20 @@ view.setActiveScreen = async(screen, id) => {
                 // ----------------------- Chat-box -----------------------
                 let allconversation = await model.getDataFireStore('conversations','users','array-contains')
                 console.log(allconversation);
+                model.allconversation = []
+                let conversations = []
                 if(allconversation.length !== 0){
                     for(let x of allconversation)
                     {
-                        model.allConversation.push({
-                            createAt: x.data().createAt,
+                        conversations.push({
+                            createdAt: controller.convertToTimeStamp(x.data().messages[x.data().messages.length-1]['createdAt']),
                             messages:x.data().messages,
                             id:x.id,
                             users:x.data().users
                         })
                     }
-                    // model.allConversationID = controller.sortByTimeStamp(conversations)
+                    console.log(conversations);
+                    model.allConversation = controller.sortByTimeStamp(conversations)
                     model.currentConversation = model.allConversation[0] 
                 }
                 let messageBox = document.querySelector('.message-box')
@@ -168,7 +172,7 @@ view.setActiveScreen = async(screen, id) => {
                     else MessageHtml += view.addFriendMessage(x.content,friendImg.photoURL)
                 }
                 messageBox.innerHTML = MessageHtml
-
+                view.loadNotification()
                 let topChatButton = document.querySelector('.top-message-box')
                 let chatContainer = document.querySelector('.chat-one-to-one-container')
                 let iconChat = document.getElementById('icon-chat-container')
@@ -232,7 +236,6 @@ view.setActiveScreen = async(screen, id) => {
                         messageInput.value = ""
                     }
                 })
-                
                 break;
             }
         case 'createRoomScreen':
@@ -753,3 +756,111 @@ view.addListConversation = (data,isActive = false)=>{
     }
     return html
 }
+view.onclickNotification= ()=>{
+    let notification = document.querySelector('.notification')
+    let notificationBox = document.querySelector('.new-notification')
+    notification.addEventListener('click',()=>{
+        notificationBox.classList.toggle('display-none')
+    })
+}
+
+view.loadNotification = async()=>{
+    let notificationBox = document.querySelector('.new-notification')
+    let html = ''
+    for(let x of model.allConversation)
+    {
+        let friendImg = await model.getInfoUser(x.users.find(
+            (user)=>user!==firebase.auth().currentUser.email))
+        html += `
+            <div class="sub-notification" id="${x.id}">
+                <div class="owner-notification">
+                    <img src="${friendImg.photoURL}">
+                </div>
+                <div class="notification-box">
+                    <div>${friendImg.email}</div>
+                    <div class="content-notification">
+                        ${x.messages[x.messages.length-1].content}
+                    </div>
+                </div>
+            </div>
+        `
+    }
+    notificationBox.innerHTML = html
+    for(let x of model.allConversation){
+        let a = document.getElementById(`${x.id}`)
+        a.addEventListener('click', async ()=>{
+            a.style.fontWeight = '300'
+            model.currentConversation = {
+                id:x.id,
+                messages: x.messages,
+                users: x.users
+            }
+            let friend = await model.getInfoUser(model.currentConversation.users.find((item)=>item!==firebase.auth().currentUser.email))
+            let messageBox = document.querySelector('.message-box')
+            let html = ''
+            
+            for(item of model.currentConversation.messages){
+                if(item.owner == firebase.auth().currentUser.email){
+                    html += view.addYourMessage(item.content)
+                }   
+                else {
+                    html += view.addFriendMessage(item.content,friend.photoURL)
+                }
+            }
+            messageBox.innerHTML = html
+            let chatbox = document.querySelector('.chat-one-to-one-container')
+            let notification = document.querySelector('.new-notification')
+            let icon = document.getElementById('icon-chat-container')
+            chatbox.classList = 'chat-one-to-one-container'
+            notification.classList = 'new-notification display-none'
+            icon.classList = 'chat-button cursor display-none'
+        })
+    }
+}
+view.addNotification = async (data,id)=>{
+    console.log(data);
+    let notificationBox = document.querySelector('.new-notification')
+    let html = ''
+    let friendImg = await model.getInfoUser(data.users.find(
+        (user)=>user!==firebase.auth().currentUser.email))
+    html = `
+        <div class="sub-notification" id="${id}">
+            <div class="owner-notification">
+                <img src="${friendImg.photoURL}">
+            </div>
+            <div class="notification-box">
+                <div>${friendImg.email}</div>
+                <div class="content-notification">
+                    ${data.messages[data.messages.length-1].content}
+                </div>
+            </div>
+        </div>
+    `
+    notificationBox.insertAdjacentHTML('afterbegin',html)
+    let a = document.getElementById(`${id}`)
+    a.addEventListener('click', async ()=>{
+        a.style.fontWeight = '300'
+        model.currentConversation = {
+            id:id,
+            messages: data.messages[data.messages.length-1].messages,
+            users: data.users
+        }
+        let messageBox = document.querySelector('.message-box')
+        let html = ''
+        
+        if(data.owner == firebase.auth().currentUser.email){
+            html += view.addYourMessage(data.messages[data.messages.length-1].content)
+        }   
+        else {
+            html += view.addFriendMessage(data.messages[data.messages.length-1],friendImg.photoURL)
+        }
+        
+        messageBox.innerHTML = html
+        let chatbox = document.querySelector('.chat-one-to-one-container')
+        let notification = document.querySelector('.new-notification')
+        let icon = document.getElementById('icon-chat-container')
+        chatbox.classList = 'chat-one-to-one-container'
+        notification.classList = 'new-notification display-none'
+        icon.classList = 'chat-button cursor display-none'
+    })
+} 

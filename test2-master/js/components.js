@@ -107,7 +107,8 @@ components.selectRoomScreen = `
         <div class="user-name cursor"></div>
         <div class="notification">
             <i class="far fa-envelope"></i>
-            <div class="new-notification">
+        </div>
+        <div class="new-notification display-none">
                 <div class="sub-notification">
                    <div class="owner-notification">
                         <img src="../img/teacher.png">
@@ -118,7 +119,6 @@ components.selectRoomScreen = `
                   </div>
                 </div>  
             </div>
-        </div>
         <div class="log-out-bnt">
             <i class="fas fa-sign-out-alt"></i>
         </div>
@@ -141,9 +141,6 @@ components.selectRoomScreen = `
             <input type="tex" id="input-chat-email" placeholder="enter email">
         </div>
         <div class="wrap">
-            <div class="list-conversation">
-                <div class="conversation-box active bold">D3</div>
-            </div>
             <div class="box-chat">
                 <div class="message-box">
                     

@@ -206,8 +206,8 @@ model.getFirebaseDocument = async(collection,document) => {
 model.firestoreArryUnion = (collection,document,data)=>{
     let db = firebase.firestore()
     db.collection(collection).doc(document).update({
+        check:false,
         messages:firebase.firestore.FieldValue.arrayUnion({
-            checked:false,
             content:data,
             createdAt:controller.getDate(),
             owner: firebase.auth().currentUser.email
@@ -219,9 +219,10 @@ model.listenConversation = ()=>{
         snapshot.docChanges().forEach(async function(change) {
             if (change.type === "modified") {
                 console.log("Modified city: ", change.doc.data());
-                let friendImg = await model.getInfoUser(change.doc.data().users.find(
-                    (user)=>user!==firebase.auth().currentUser.email))
                 if(change.doc.id == model.currentConversation.id){
+                    let box = document.querySelector('.message-box')
+                    let friendImg = await model.getInfoUser(change.doc.data().users.find(
+                    (user)=>user!==firebase.auth().currentUser.email))
                     let messages = change.doc.data().messages
                     let html =''
                     let messageBox = document.querySelector('.message-box')
@@ -229,6 +230,34 @@ model.listenConversation = ()=>{
                     html += view.addYourMessage(messages[messages.length-1].content)
                     else html += view.addFriendMessage(messages[messages.length-1].content,friendImg.photoURL)
                     messageBox.innerHTML += html
+                    box.scrollTop = box.scrollHeight
+                }
+                let font = document.querySelector(`#${change.doc.id}`)
+                font.remove()
+                view.addNotification(change.doc.data(),change.doc.id)
+                // let notification = document.querySelector('.new-notification')
+                // let friendImg = await model.getInfoUser(change.doc.data().users.find(
+                //     (user)=>user!==firebase.auth().currentUser.email))
+                //     let htmlx = `
+                //     <div class="sub-notification" id="${change.doc.id}">
+                //         <div class="owner-notification">
+                //             <img src="${friendImg.photoURL}">
+                //         </div>
+                //         <div class="notification-box">
+                //             <div>${friendImg.email}</div>
+                //             <div class="content-notification">
+                //                 ${change.doc.data().messages[change.doc.data().messages.length-1].content}
+                //             </div>
+                //         </div>
+                //     </div>
+                // `
+                // notification.insertAdjacentHTML('afterbegin',htmlx)
+                // let notificationBox = document.querySelector(`#${change.doc.id} .content-notification`)
+                // notificationBox.innerHTML = `${change.doc.data().messages[change.doc.data().messages.length-1].content}`
+                
+                if(change.doc.id !== model.currentConversation.id && change.doc.data().check == false){
+                    let font = document.querySelector(`#${change.doc.id}`)
+                    font.style.fontWeight  = '600'
                 }
 
             }
