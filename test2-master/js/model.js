@@ -76,7 +76,7 @@ model.createRoom = async(room) => {
 //     view.showRooms(model.rooms, view.addNewRoom)
 // }
 
-model.listenRoomChange = () => {
+model.listenRoomChange = (listenChat) => {
     let db= model.initFirebaseStore().collection('rooms').onSnapshot(function(snapshot) {
         snapshot.docChanges().forEach(function(change) {
             if (change.type === "added") {
@@ -92,7 +92,7 @@ model.listenRoomChange = () => {
                     password: change.doc.data().password
                 })
                 console.log("room Add:",change.doc.data());
-                view.addNewRoom(change.doc.id, change.doc.data())
+                view.addNewRoom(change.doc.id, change.doc.data(),listenChat)
                 // console.log("New city: ", change.doc.data());
             }
             if (change.type === "modified") {

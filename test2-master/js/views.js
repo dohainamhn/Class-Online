@@ -101,7 +101,7 @@ view.setActiveScreen = async(screen, id) => {
                 // in ra man login
                 document.getElementById('app').innerHTML = components.selectRoomScreen
                 let listenChat = model.listenConversation()
-                let listenRoomChange =  model.listenRoomChange() 
+                let listenRoomChange =  model.listenRoomChange(listenChat) 
                 view.onclickNotification()
                 model.rooms=[]
                 document.querySelector('.new-room-bnt').addEventListener('click', () => {
@@ -311,13 +311,13 @@ view.chat = async ()=>{
     let inputChatEmail = document.getElementById('input-chat-email')
     inputChatEmail.addEventListener('keyup',async (e)=>{
         if(e.keyCode=='13'){
-            if(inputChatEmail.value == firebase.auth().currentUser.email) 
+            let friend = await model.getInfoUser(inputChatEmail.value)
+            if(inputChatEmail.value == firebase.auth().currentUser.email||friend == undefined) 
             {
                 alert('Email is invalid ')
                 return
             }
             let data = await model.findConversation('conversations','users',inputChatEmail.value)
-            let friend = await model.getInfoUser(inputChatEmail.value)
             let messageBox = document.querySelector('.message-box')
             console.log(friend);
             if(data == undefined){
@@ -403,7 +403,7 @@ view.showRooms = (r, f) => {
     }
 }
 
-view.addNewRoom = (roomID,roomData) => {
+view.addNewRoom = (roomID,roomData,listenChat) => {
     console.log(roomData);
     const roomWrapper = document.createElement('div')
     roomWrapper.className = 'room-bar cursor'
@@ -422,6 +422,7 @@ view.addNewRoom = (roomID,roomData) => {
         var person = prompt("Please enter password");
         if (person === roomData.password) {
             model.currentRoomID = roomID
+            listenChat()
             view.setActiveScreen('classRoomScreen', roomID)
         } else {
             alert('Join failed')
