@@ -219,20 +219,22 @@ model.listenConversation = ()=>{
         snapshot.docChanges().forEach(async function(change) {
             if (change.type === "modified") {
                 console.log("Modified city: ", change.doc.data());
-                if(change.doc.id == model.currentConversation.id){
-                    let box = document.querySelector('.message-box')
-                    let friendImg = await model.getInfoUser(change.doc.data().users.find(
-                    (user)=>user!==firebase.auth().currentUser.email))
-                    let messages = change.doc.data().messages
-                    let html =''
-                    let messageBox = document.querySelector('.message-box')
-                    if(messages[messages.length-1].owner == firebase.auth().currentUser.email) 
-                    html += view.addYourMessage(messages[messages.length-1].content)
-                    else html += view.addFriendMessage(messages[messages.length-1].content,friendImg.photoURL)
-                    messageBox.innerHTML += html
-                    box.scrollTop = box.scrollHeight
+                if(model.currentConversation !== null){
+                    if(change.doc.id == model.currentConversation.id){
+                        let box = document.querySelector('.message-box')
+                        let friendImg = await model.getInfoUser(change.doc.data().users.find(
+                        (user)=>user!==firebase.auth().currentUser.email))
+                        let messages = change.doc.data().messages
+                        let html =''
+                        let messageBox = document.querySelector('.message-box')
+                        if(messages[messages.length-1].owner == firebase.auth().currentUser.email) 
+                        html += view.addYourMessage(messages[messages.length-1].content)
+                        else html += view.addFriendMessage(messages[messages.length-1].content,friendImg.photoURL)
+                        messageBox.innerHTML += html
+                        box.scrollTop = box.scrollHeight
+                    }
                 }
-                let font = document.querySelector(`#${change.doc.id}`)
+                let font = document.getElementById(`${change.doc.id}`)
                 font.remove()
                 view.addNotification(change.doc.data(),change.doc.id)
                 // let notification = document.querySelector('.new-notification')
@@ -254,11 +256,7 @@ model.listenConversation = ()=>{
                 // notification.insertAdjacentHTML('afterbegin',htmlx)
                 // let notificationBox = document.querySelector(`#${change.doc.id} .content-notification`)
                 // notificationBox.innerHTML = `${change.doc.data().messages[change.doc.data().messages.length-1].content}`
-                
-                if(change.doc.id !== model.currentConversation.id && change.doc.data().check == false){
-                    let font = document.querySelector(`#${change.doc.id}`)
-                    font.style.fontWeight  = '600'
-                }
+              
 
             }
         })

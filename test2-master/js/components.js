@@ -107,18 +107,11 @@ components.selectRoomScreen = `
         <div class="user-name cursor"></div>
         <div class="notification">
             <i class="far fa-envelope"></i>
+            <div class="icon-notification"></div>
         </div>
         <div class="new-notification display-none">
-                <div class="sub-notification">
-                   <div class="owner-notification">
-                        <img src="../img/teacher.png">
-                   </div>
-                  <div class="notification-box">
-                        <div>DoHaiNam</div>
-                        <div class="content-notification">Hello Boy</div>
-                  </div>
-                </div>  
-            </div>
+               
+        </div>
         <div class="log-out-bnt">
             <i class="fas fa-sign-out-alt"></i>
         </div>
@@ -136,9 +129,9 @@ components.selectRoomScreen = `
     </div>
     <div class="chat-button cursor" id="icon-chat-container"></div>
     <div class="chat-one-to-one-container display-none">
-        <button class="top-message-box">chat with dohainamhn3@gmail.com</button>
+        <button class="top-message-box">Please Enter your friend email to chat</button>
         <div class="top-input">
-            <input type="tex" id="input-chat-email" placeholder="enter email">
+            <input type="tex" id="input-chat-email" placeholder="Enter your friend email">
         </div>
         <div class="wrap">
             <div class="box-chat">
@@ -146,7 +139,7 @@ components.selectRoomScreen = `
                     
                 </div>
                 <div class="input-message">
-                    <input>
+                    <input placeholder="Enter your message">
                     <div class="icon"></div>
                 </div>
             </div>
@@ -260,11 +253,15 @@ components.updateProfileScreen = `
             <i class="fas fa-search"></i>
         </div>
     </div>
-    <div class="nav-bar-info-User">
+    <div class="nav-bar-info-User ">
         <div><img src="" alt=""></div>
         <div class="user-name cursor"></div>
         <div class="notification">
             <i class="far fa-envelope"></i>
+            <div class="icon-notification"></div>
+        </div>
+        <div class="new-notification display-none">
+               
         </div>
         <div class="log-out-bnt">
             <i class="fas fa-sign-out-alt"></i>
@@ -294,6 +291,24 @@ components.updateProfileScreen = `
     </div>
     <div class="profile-box">
         
+    </div>
+    <div class="chat-button cursor" id="icon-chat-container"></div>
+    <div class="chat-one-to-one-container display-none">
+        <button class="top-message-box">chat with dohainamhn3@gmail.com</button>
+        <div class="top-input">
+            <input type="tex" id="input-chat-email" placeholder="Enter your friend email">
+        </div>
+        <div class="wrap">
+            <div class="box-chat">
+                <div class="message-box">
+                    
+                </div>
+                <div class="input-message">
+                    <input placeholder="Enter your message">
+                    <div class="icon"></div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </div>

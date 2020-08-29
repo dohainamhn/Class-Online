@@ -161,81 +161,19 @@ view.setActiveScreen = async(screen, id) => {
                     }
                     console.log(conversations);
                     model.allConversation = controller.sortByTimeStamp(conversations)
-                    model.currentConversation = model.allConversation[0] 
+                    // model.currentConversation = model.allConversation[0] 
                 }
-                let messageBox = document.querySelector('.message-box')
-                let dataMessage = await model.getFirebaseDocument('conversations',model.currentConversation.id)
-                let MessageHtml = ''
-                let friendImg = await model.getInfoUser(dataMessage.users.find((user)=>user!==firebase.auth().currentUser.email))
-                for(let x of dataMessage.messages){
-                    if(x.owner == firebase.auth().currentUser.email) MessageHtml += view.addYourMessage(x.content)
-                    else MessageHtml += view.addFriendMessage(x.content,friendImg.photoURL)
-                }
-                messageBox.innerHTML = MessageHtml
+                // let messageBox = document.querySelector('.message-box')
+                // let dataMessage = await model.getFirebaseDocument('conversations',model.currentConversation.id)
+                // let MessageHtml = ''
+                // let friendImg = await model.getInfoUser(dataMessage.users.find((user)=>user!==firebase.auth().currentUser.email))
+                // for(let x of dataMessage.messages){
+                //     if(x.owner == firebase.auth().currentUser.email) MessageHtml += view.addYourMessage(x.content)
+                //     else MessageHtml += view.addFriendMessage(x.content,friendImg.photoURL)
+                // }
+                // messageBox.innerHTML = MessageHtml
                 view.loadNotification()
-                let topChatButton = document.querySelector('.top-message-box')
-                let chatContainer = document.querySelector('.chat-one-to-one-container')
-                let iconChat = document.getElementById('icon-chat-container')
-                topChatButton.addEventListener('click',()=>{
-                    chatContainer.classList.toggle('display-none')
-                    iconChat.classList.toggle('display-none')
-                })
-                iconChat.addEventListener('click',()=>{
-                    chatContainer.classList.toggle('display-none')
-                    iconChat.classList.toggle('display-none')
-                })
-                let inputChatEmail = document.getElementById('input-chat-email')
-                inputChatEmail.addEventListener('keyup',async (e)=>{
-                    if(e.keyCode=='13'){
-                        if(inputChatEmail.value == firebase.auth().currentUser.email) 
-                        {
-                            alert('Email is invalid ')
-                            return
-                        }
-                        let data = await model.findConversation('conversations','users',inputChatEmail.value)
-                        let friend = await model.getInfoUser(inputChatEmail.value)
-                        console.log(friend);
-                        if(data == undefined){
-                            let key =  model.addFireStore('conversations',{
-                                createAt: new Date().toLocaleString(),
-                                messages:[{
-                                    content:"Hello",
-                                    createdAt:controller.getDate(),
-                                    owner:firebase.auth().currentUser.email
-                                }],
-                                users:[inputChatEmail.value,firebase.auth().currentUser.email]
-                            })
-                            messageBox.innerHTML =""
-                            model.currentConversation = {
-                                id:key
-                            }
-                        }
-                        else{
-                            let html = ''
-                           if(data.data().messages !== undefined){
-                            for(let x of data.data().messages){
-                                if(x.owner == firebase.auth().currentUser.email){
-                                    html += view.addYourMessage(x.content)
-                                }
-                                else{
-                                    html += view.addFriendMessage(x.content,friend.photoURL)
-                                }
-                            }
-                           }
-                            model.currentConversation = {
-                                id:data.id
-                            }
-                            messageBox.innerHTML = html
-                        }
-                    }
-                })
-                let messageInput = document.querySelector('.input-message input')
-                messageInput.addEventListener('keyup',(e)=>{
-                    if(e.keyCode == '13'){
-                        model.firestoreArryUnion('conversations',model.currentConversation.id,messageInput.value)
-                        messageInput.value = ""
-                    }
-                })
+                view.chat()
                 break;
             }
         case 'createRoomScreen':
@@ -323,8 +261,10 @@ view.setActiveScreen = async(screen, id) => {
         case 'updatePageScreen':
             {
                 document.getElementById("app").innerHTML = components.updateProfileScreen;
+                let listenChat = model.listenConversation()
                 document.querySelector('.log-out-bnt').addEventListener('click', () => {
                     firebase.auth().signOut()
+                    listenChat()
                 })
                 document.querySelector('.upload-img img').src = firebase.auth().currentUser.photoURL
                 console.log('hello ae');
@@ -334,9 +274,12 @@ view.setActiveScreen = async(screen, id) => {
                 const homPage = document.querySelector('.symbol')
                 homPage.addEventListener('click', () => {
                     view.setActiveScreen('selectRoomScreen')
-                    // model.loadRooms()
+                    listenChat()
                 })
                 console.log(homPage)
+                view.onclickNotification()
+                view.loadNotification()
+                view.chat()
 
                 break;
             }
@@ -353,7 +296,104 @@ view.setActiveScreen = async(screen, id) => {
     }
 }
 
-
+view.chat = async ()=>{
+    let topChatButton = document.querySelector('.top-message-box')
+    let chatContainer = document.querySelector('.chat-one-to-one-container')
+    let iconChat = document.getElementById('icon-chat-container')
+    topChatButton.addEventListener('click',()=>{
+        chatContainer.classList.toggle('display-none')
+        iconChat.classList.toggle('display-none')
+    })
+    iconChat.addEventListener('click',()=>{
+        chatContainer.classList.toggle('display-none')
+        iconChat.classList.toggle('display-none')
+    })
+    let inputChatEmail = document.getElementById('input-chat-email')
+    inputChatEmail.addEventListener('keyup',async (e)=>{
+        if(e.keyCode=='13'){
+            if(inputChatEmail.value == firebase.auth().currentUser.email) 
+            {
+                alert('Email is invalid ')
+                return
+            }
+            let data = await model.findConversation('conversations','users',inputChatEmail.value)
+            let friend = await model.getInfoUser(inputChatEmail.value)
+            let messageBox = document.querySelector('.message-box')
+            console.log(friend);
+            if(data == undefined){
+                let key =  model.addFireStore('conversations',{
+                    createAt: new Date().toLocaleString(),
+                    messages:[{
+                        content:"Hello",
+                        createdAt:controller.getDate(),
+                        owner:firebase.auth().currentUser.email
+                    }],
+                    users:[inputChatEmail.value,firebase.auth().currentUser.email]
+                })
+                let data2 = await model.findConversation('conversations','users',inputChatEmail.value)
+                let friend = await model.getInfoUser(inputChatEmail.value)
+                let html = ''
+                if(data2.data().messages !== undefined){
+                 for(let x of data2.data().messages){
+                     if(x.owner == firebase.auth().currentUser.email){
+                         html += view.addYourMessage(x.content)
+                     }
+                     else{
+                         html += view.addFriendMessage(x.content,friend.photoURL)
+                     }
+                 }
+                }
+                 model.currentConversation = {
+                     id:data2.id
+                 }
+                 messageBox.innerHTML = html
+                 let allconversation = await model.getDataFireStore('conversations','users','array-contains')
+                console.log(allconversation);
+                model.allconversation = []
+                let conversations = []
+                if(allconversation.length !== 0){
+                    for(let x of allconversation)
+                    {
+                        conversations.push({
+                            createdAt: controller.convertToTimeStamp(x.data().messages[x.data().messages.length-1]['createdAt']),
+                            messages:x.data().messages,
+                            id:x.id,
+                            users:x.data().users
+                        })
+                    }
+                    console.log(conversations);
+                    model.allConversation = controller.sortByTimeStamp(conversations)
+                    // model.currentConversation = model.allConversation[0] 
+                }
+                 view.loadNotification()
+            }
+            else{
+                let html = ''
+               if(data.data().messages !== undefined){
+                for(let x of data.data().messages){
+                    if(x.owner == firebase.auth().currentUser.email){
+                        html += view.addYourMessage(x.content)
+                    }
+                    else{
+                        html += view.addFriendMessage(x.content,friend.photoURL)
+                    }
+                }
+               }
+                model.currentConversation = {
+                    id:data.id
+                }
+                messageBox.innerHTML = html
+            }
+        }
+    })
+    let messageInput = document.querySelector('.input-message input')
+    messageInput.addEventListener('keyup',(e)=>{
+        if(e.keyCode == '13'){
+            model.firestoreArryUnion('conversations',model.currentConversation.id,messageInput.value)
+            messageInput.value = ""
+        }
+    })  
+}
 view.errorMessage = (id, message) => {
     document.getElementById(id).innerText = message;
 };
@@ -766,12 +806,12 @@ view.onclickNotification= ()=>{
 
 view.loadNotification = async()=>{
     let notificationBox = document.querySelector('.new-notification')
-    let html = ''
+    
     for(let x of model.allConversation)
     {
         let friendImg = await model.getInfoUser(x.users.find(
             (user)=>user!==firebase.auth().currentUser.email))
-        html += `
+        let html = `
             <div class="sub-notification" id="${x.id}">
                 <div class="owner-notification">
                     <img src="${friendImg.photoURL}">
@@ -784,8 +824,15 @@ view.loadNotification = async()=>{
                 </div>
             </div>
         `
+        notificationBox.insertAdjacentHTML('afterbegin',html)
+        if(model.currentConversation !== null){
+            if(x.id !== model.currentConversation.id && x.check == false){
+                let font = document.querySelector(`#${x.id}`)
+                font.style.fontWeight  = '600'
+            }  
+        }
     }
-    notificationBox.innerHTML = html
+   
     for(let x of model.allConversation){
         let a = document.getElementById(`${x.id}`)
         a.addEventListener('click', async ()=>{
@@ -814,6 +861,8 @@ view.loadNotification = async()=>{
             chatbox.classList = 'chat-one-to-one-container'
             notification.classList = 'new-notification display-none'
             icon.classList = 'chat-button cursor display-none'
+            let chatTitle = document.querySelector('.top-message-box')
+            chatTitle.innerHTML = `Chat With ${friend.email}`
         })
     }
 }
@@ -837,6 +886,22 @@ view.addNotification = async (data,id)=>{
         </div>
     `
     notificationBox.insertAdjacentHTML('afterbegin',html)
+    if(model.currentConversation !== null){
+        if(id !== model.currentConversation.id && data.check == false){
+            let font = document.querySelector(`#${id}`)
+            let icon = document.querySelector('.icon-notification')
+            font.style.fontWeight  = '600'
+            icon.style.display = 'block'
+        }
+    }
+    else{
+        if(data.check == false){
+            let font = document.querySelector(`#${id}`)
+            let icon = document.querySelector('.icon-notification')
+            font.style.fontWeight  = '600'
+            icon.style.display = 'block'
+        }
+    }   
     let a = document.getElementById(`${id}`)
     a.addEventListener('click', async ()=>{
         a.style.fontWeight = '300'
@@ -848,19 +913,26 @@ view.addNotification = async (data,id)=>{
         let messageBox = document.querySelector('.message-box')
         let html = ''
         
-        if(data.owner == firebase.auth().currentUser.email){
-            html += view.addYourMessage(data.messages[data.messages.length-1].content)
-        }   
-        else {
-            html += view.addFriendMessage(data.messages[data.messages.length-1],friendImg.photoURL)
+        for(let x of data.messages){
+            if(x.owner == firebase.auth().currentUser.email){
+                html += view.addYourMessage(x.content)
+            }   
+            else {
+                html += view.addFriendMessage(x.content,friendImg.photoURL)
+            }
         }
         
         messageBox.innerHTML = html
+        let iconMessage = document.querySelector('.icon-notification')
+        
+        iconMessage.style.display = 'none'
         let chatbox = document.querySelector('.chat-one-to-one-container')
         let notification = document.querySelector('.new-notification')
         let icon = document.getElementById('icon-chat-container')
         chatbox.classList = 'chat-one-to-one-container'
         notification.classList = 'new-notification display-none'
         icon.classList = 'chat-button cursor display-none'
+        let chatTitle = document.querySelector('.top-message-box')
+        chatTitle.innerHTML = `Chat With ${friendImg.email}`
     })
 } 

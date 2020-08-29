@@ -93,3 +93,23 @@
 .bold{
     font-weight: bold;
 }
+.chat-button{
+    content: " ";
+    width: 30px;
+    height: 30px;
+    background: #1b1daad4;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border-radius: 50px 0px 0px 0px;
+    box-shadow: 8px 19px 50px 17px;
+}
+.chat-button:hover{
+    transform: scale(2)
+}
+.message-box::-webkit-scrollbar{
+    display: none; 
+}
+#input-chat-email{
+    outline:none;
+}

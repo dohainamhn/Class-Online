@@ -4,6 +4,8 @@
     background: #EEF1F3;
     width: 100%;
     height: 100vh;
+    position: relative;
+    overflow: hidden;
 }
 
 .container1 .main-container1 {
@@ -54,7 +56,7 @@
     height: 100px;
 }
 
-.main-container1 img {
+.upload-img img {
     background: #fff;
     position: absolute;
     width: 100px;
