@@ -15,7 +15,7 @@ var requestInit = {
 };
 let view = {}
 view.count = 0;
-view.setActiveScreen = async(screen, id) => {
+view.setActiveScreen = async (screen, id) => {
     switch (screen) {
         case "registerScreen":
             {
@@ -101,9 +101,9 @@ view.setActiveScreen = async(screen, id) => {
                 // in ra man login
                 document.getElementById('app').innerHTML = components.selectRoomScreen
                 let listenChat = model.listenConversation()
-                let listenRoomChange =  model.listenRoomChange(listenChat) 
+                let listenRoomChange = model.listenRoomChange(listenChat)
                 view.onclickNotification()
-                model.rooms=[]
+                model.rooms = []
                 document.querySelector('.new-room-bnt').addEventListener('click', () => {
                     view.setActiveScreen('createRoomScreen')
                     listenRoomChange()
@@ -126,8 +126,8 @@ view.setActiveScreen = async(screen, id) => {
                         listenChat()
                     })
                 })
-                
-                
+
+
                 const response = await firebase.firestore().collection(model.collectionName).get()
                 roomSearch = getDataFromDocs(response.docs)
 
@@ -145,18 +145,17 @@ view.setActiveScreen = async(screen, id) => {
                     }
                 });
                 // ----------------------- Chat-box -----------------------
-                let allconversation = await model.getDataFireStore('conversations','users','array-contains')
+                let allconversation = await model.getDataFireStore('conversations', 'users', 'array-contains')
                 console.log(allconversation);
-                model.allconversation = []
+                model.allConversation = []
                 let conversations = []
-                if(allconversation.length !== 0){
-                    for(let x of allconversation)
-                    {
+                if (allconversation.length !== 0) {
+                    for (let x of allconversation) {
                         conversations.push({
-                            createdAt: controller.convertToTimeStamp(x.data().messages[x.data().messages.length-1]['createdAt']),
-                            messages:x.data().messages,
-                            id:x.id,
-                            users:x.data().users
+                            createdAt: controller.convertToTimeStamp(x.data().messages[x.data().messages.length - 1]['createdAt']),
+                            messages: x.data().messages,
+                            id: x.id,
+                            users: x.data().users
                         })
                     }
                     console.log(conversations);
@@ -172,7 +171,7 @@ view.setActiveScreen = async(screen, id) => {
                 //     else MessageHtml += view.addFriendMessage(x.content,friendImg.photoURL)
                 // }
                 // messageBox.innerHTML = MessageHtml
-                view.loadNotification()
+                // view.loadNotification()
                 view.chat()
                 break;
             }
@@ -181,14 +180,14 @@ view.setActiveScreen = async(screen, id) => {
                 document.getElementById('app').innerHTML = components.createRoomScreen
                 document.getElementById('back-to-chat').addEventListener('click', () => {
                     view.setActiveScreen('selectRoomScreen')
-                    
+
                 })
                 const createRoomForm = document.getElementById('create-conversation-form')
                 createRoomForm.addEventListener('submit', (e) => {
                     e.preventDefault();
-                    fetch(url, requestInit).then(function(response) {
+                    fetch(url, requestInit).then(function (response) {
                         return response.json();
-                    }).then(function(json) {
+                    }).then(function (json) {
                         teacher = true
                         console.log(json)
                         const data = {
@@ -200,13 +199,13 @@ view.setActiveScreen = async(screen, id) => {
                             title: createRoomForm.roomTtitle.value,
                             createdAt: new Date().toLocaleString(),
                             password: createRoomForm.passwordRoom.value,
-                            currentMembers:[]
+                            currentMembers: []
                         }
                         // model.loadRooms()
                         console.log((data));
                         model.createRoom(data)
                         view.setActiveScreen('selectRoomScreen')
-                    }).catch(function(err) {
+                    }).catch(function (err) {
                         console.error(err);
                     });
                 })
@@ -224,7 +223,7 @@ view.setActiveScreen = async(screen, id) => {
                 agora.addEventListenerToolBoard(room, roomInfo)
 
                 roomInfo.host == firebase.auth().currentUser.email ?
-                agora.joinChannel(roomInfo.channel, true) : agora.joinChannel(roomInfo.channel, false)
+                    agora.joinChannel(roomInfo.channel, true) : agora.joinChannel(roomInfo.channel, false)
                 agora.RtmLogin(firebase.auth().currentUser.displayName, roomInfo.channel)
 
                 if (view.count > 0) {
@@ -247,7 +246,7 @@ view.setActiveScreen = async(screen, id) => {
                     agora.client.leave()
                     agora.RtmLeaveChannel()
                     agora.remoteStreams = []
-                    room.disconnect().then(function() {
+                    room.disconnect().then(function () {
                         console.log("Leave room success");
                         // model.loadRooms()
                     });
@@ -278,7 +277,7 @@ view.setActiveScreen = async(screen, id) => {
                 })
                 console.log(homPage)
                 view.onclickNotification()
-                view.loadNotification()
+                // view.loadNotification()
                 view.chat()
 
                 break;
@@ -296,103 +295,103 @@ view.setActiveScreen = async(screen, id) => {
     }
 }
 
-view.chat = async ()=>{
+view.chat = async () => {
     let topChatButton = document.querySelector('.top-message-box')
     let chatContainer = document.querySelector('.chat-one-to-one-container')
     let iconChat = document.getElementById('icon-chat-container')
-    topChatButton.addEventListener('click',()=>{
+    topChatButton.addEventListener('click', () => {
         chatContainer.classList.toggle('display-none')
         iconChat.classList.toggle('display-none')
     })
-    iconChat.addEventListener('click',()=>{
+    iconChat.addEventListener('click', () => {
         chatContainer.classList.toggle('display-none')
         iconChat.classList.toggle('display-none')
     })
     let inputChatEmail = document.getElementById('input-chat-email')
-    inputChatEmail.addEventListener('keyup',async (e)=>{
-        if(e.keyCode=='13'){
+    inputChatEmail.addEventListener('keyup', async (e) => {
+        if (e.keyCode == '13') {
             let friend = await model.getInfoUser(inputChatEmail.value)
-            if(inputChatEmail.value == firebase.auth().currentUser.email||friend == undefined) 
-            {
+            if (inputChatEmail.value == firebase.auth().currentUser.email || friend == undefined) {
                 alert('Email is invalid ')
                 return
             }
-            let data = await model.findConversation('conversations','users',inputChatEmail.value)
+            let data = await model.findConversation('conversations', 'users', inputChatEmail.value)
             let messageBox = document.querySelector('.message-box')
             console.log(friend);
-            if(data == undefined){
-                let key =  model.addFireStore('conversations',{
+            if (data == undefined) {
+                let key = model.addFireStore('conversations', {
                     createAt: new Date().toLocaleString(),
-                    messages:[{
-                        content:"Hello",
-                        createdAt:controller.getDate(),
-                        owner:firebase.auth().currentUser.email
+                    messages: [{
+                        content: "Hello",
+                        createdAt: controller.getDate(),
+                        owner: firebase.auth().currentUser.email
                     }],
-                    users:[inputChatEmail.value,firebase.auth().currentUser.email]
+                    users: [inputChatEmail.value, firebase.auth().currentUser.email]
                 })
-                let data2 = await model.findConversation('conversations','users',inputChatEmail.value)
+                let data2 = await model.findConversation('conversations', 'users', inputChatEmail.value)
                 let friend = await model.getInfoUser(inputChatEmail.value)
                 let html = ''
-                if(data2.data().messages !== undefined){
-                 for(let x of data2.data().messages){
-                     if(x.owner == firebase.auth().currentUser.email){
-                         html += view.addYourMessage(x.content)
-                     }
-                     else{
-                         html += view.addFriendMessage(x.content,friend.photoURL)
-                     }
-                 }
+                if (data2.data().messages !== undefined) {
+                    for (let x of data2.data().messages) {
+                        if (x.owner == firebase.auth().currentUser.email) {
+                            html += view.addYourMessage(x.content)
+                        }
+                        else {
+                            html += view.addFriendMessage(x.content, friend.photoURL)
+                        }
+                    }
                 }
-                 model.currentConversation = {
-                     id:data2.id
-                 }
-                 messageBox.innerHTML = html
-                 let allconversation = await model.getDataFireStore('conversations','users','array-contains')
+                model.currentConversation = {
+                    id: data2.id
+                }
+                messageBox.innerHTML = html
+                messageBox.scrollTop = messageBox.scrollHeight
+                let allconversation = await model.getDataFireStore('conversations', 'users', 'array-contains')
                 console.log(allconversation);
-                model.allconversation = []
+                model.allConversation = []
                 let conversations = []
-                if(allconversation.length !== 0){
-                    for(let x of allconversation)
-                    {
+                if (allconversation.length !== 0) {
+                    for (let x of allconversation) {
                         conversations.push({
-                            createdAt: controller.convertToTimeStamp(x.data().messages[x.data().messages.length-1]['createdAt']),
-                            messages:x.data().messages,
-                            id:x.id,
-                            users:x.data().users
+                            createdAt: controller.convertToTimeStamp(x.data().messages[x.data().messages.length - 1]['createdAt']),
+                            messages: x.data().messages,
+                            id: x.id,
+                            users: x.data().users
                         })
                     }
                     console.log(conversations);
                     model.allConversation = controller.sortByTimeStamp(conversations)
                     // model.currentConversation = model.allConversation[0] 
                 }
-                 view.loadNotification()
+                // view.loadNotification()
             }
-            else{
+            else {
                 let html = ''
-               if(data.data().messages !== undefined){
-                for(let x of data.data().messages){
-                    if(x.owner == firebase.auth().currentUser.email){
-                        html += view.addYourMessage(x.content)
-                    }
-                    else{
-                        html += view.addFriendMessage(x.content,friend.photoURL)
+                if (data.data().messages !== undefined) {
+                    for (let x of data.data().messages) {
+                        if (x.owner == firebase.auth().currentUser.email) {
+                            html += view.addYourMessage(x.content)
+                        }
+                        else {
+                            html += view.addFriendMessage(x.content, friend.photoURL)
+                        }
                     }
                 }
-               }
                 model.currentConversation = {
-                    id:data.id
+                    id: data.id
                 }
                 messageBox.innerHTML = html
+                messageBox.scrollTop = messageBox.scrollHeight
             }
         }
     })
     let messageInput = document.querySelector('.input-message input')
-    messageInput.addEventListener('keyup',(e)=>{
-        if(e.keyCode == '13'){
-            model.firestoreArryUnion('conversations',model.currentConversation.id,messageInput.value)
+    messageInput.addEventListener('keyup', (e) => {
+        if (e.keyCode == '13') {
+            model.firestoreArryUnion('conversations', model.currentConversation.id, messageInput.value)
             messageInput.value = ""
         }
-    })  
+    })
 }
 view.errorMessage = (id, message) => {
     document.getElementById(id).innerText = message;
@@ -403,7 +402,7 @@ view.showRooms = (r, f) => {
     }
 }
 
-view.addNewRoom = (roomID,roomData,listenChat) => {
+view.addNewRoom = (roomID, roomData, listenChat) => {
     console.log(roomData);
     const roomWrapper = document.createElement('div')
     roomWrapper.className = 'room-bar cursor'
@@ -418,7 +417,7 @@ view.addNewRoom = (roomID,roomData,listenChat) => {
     document.querySelector(".right-container .room-list").appendChild(roomWrapper)
 
     let joinRoom = document.getElementById(roomWrapper.id)
-    joinRoom.addEventListener('click', async() => {
+    joinRoom.addEventListener('click', async () => {
         var person = prompt("Please enter password");
         if (person === roomData.password) {
             model.currentRoomID = roomID
@@ -428,10 +427,10 @@ view.addNewRoom = (roomID,roomData,listenChat) => {
             alert('Join failed')
         }
     })
-    joinRoom.addEventListener('mouseover', async() => {
-        let r = model.rooms.find((item)=>item.fireBaseID == roomID)
+    joinRoom.addEventListener('mouseover', async () => {
+        let r = model.rooms.find((item) => item.fireBaseID == roomID)
         // let r = await model.getRoomInfo(roomID)
-        view.getInFoRoom(roomID,r)
+        view.getInFoRoom(roomID, r)
     })
 
 }
@@ -446,7 +445,7 @@ view.addMessage = (senderId, text) => {
 
 view.getRooms = (data) => {
     let listRooms = document.querySelector('.room-list')
-    if(data !== undefined){
+    if (data !== undefined) {
         let html = `
         <div class="room-bar" id="${data.id}">
             <div class="room-id">ID: ${data.id}</div>
@@ -457,7 +456,7 @@ view.getRooms = (data) => {
             `
         listRooms.insertAdjacentHTML('beforeend', html)
         let joinRoom = document.getElementById(data.id)
-        joinRoom.addEventListener('click', async() => {
+        joinRoom.addEventListener('click', async () => {
             var person = prompt("Please enter your name", "Harry Potter");
             if (person === data.password) {
                 model.currentRoomID = data.id
@@ -466,12 +465,12 @@ view.getRooms = (data) => {
                 alert('Join failed')
             }
         })
-        joinRoom.addEventListener('mouseover', async() => {
-            let r = model.rooms.find((item)=>item.fireBaseID == data.id)
+        joinRoom.addEventListener('mouseover', async () => {
+            let r = model.rooms.find((item) => item.fireBaseID == data.id)
             // let r = await model.getRoomInfo(data.id)
-            view.getInFoRoom(data.id,r)
+            view.getInFoRoom(data.id, r)
         })
-    } 
+    }
 }
 view.getYourRooms = (room) => {
     const roomWrapper = document.createElement('div')
@@ -487,7 +486,7 @@ view.getYourRooms = (room) => {
     document.querySelector(".right-container .room-list").appendChild(roomWrapper)
 
     let joinRoom = document.getElementById(roomWrapper.id)
-    joinRoom.addEventListener('click', async() => {
+    joinRoom.addEventListener('click', async () => {
         var person = prompt("Please enter password");
         if (person === room.password) {
             model.currentRoomID = room.id
@@ -504,11 +503,11 @@ view.updateNumberUser = (docId, numberUser) => {
     secondChild.innerText = numberUser + ' members'
 }
 
-view.getInFoRoom = async (roomID,room) => {
-    let realTimeUserInfo = await model.getUserIntoRoom(null,roomID)
+view.getInFoRoom = async (roomID, room) => {
+    let realTimeUserInfo = await model.getUserIntoRoom(null, roomID)
     let infoHost = await model.getInfoUser(room.host)
     let count = 0;
-    realTimeUserInfo !== null? count= Object.keys(realTimeUserInfo).length: count = 0;
+    realTimeUserInfo !== null ? count = Object.keys(realTimeUserInfo).length : count = 0;
     let infoRoom = document.querySelector('.left-container')
     let html = `
     <div class="class-name">${room.name} </div>
@@ -538,28 +537,28 @@ view.getInFoRoom = async (roomID,room) => {
     infoRoom.innerHTML = html;
     let members = document.getElementById('student-info')
     let userHtml = ``
-    
-    if(realTimeUserInfo !== null){
+
+    if (realTimeUserInfo !== null) {
         let key = Object.keys(realTimeUserInfo)
-        for(x of key){
+        for (x of key) {
             userHtml += `<div class="info">
                             <img src="${realTimeUserInfo[x].photoURL}" alt="">
                             <div class="cursor" id="${x}">${realTimeUserInfo[x].name}</div>
                         </div>`
         }
-        members.insertAdjacentHTML('beforeend',userHtml)
-        for(let x of key){
+        members.insertAdjacentHTML('beforeend', userHtml)
+        for (let x of key) {
             let userBar = document.getElementById(`${x}`)
-            userBar.addEventListener('click',async()=>{
+            userBar.addEventListener('click', async () => {
                 let userDetail = await model.getInfoUser(realTimeUserInfo[x].email)
                 console.log('click');
                 view.setActiveScreen('viewYourFriendProfile')
                 view.getUser(userDetail)
             })
-    }
+        }
     }
     let getUser = document.querySelector('.email-user')
-    getUser.addEventListener('click', async() => {
+    getUser.addEventListener('click', async () => {
         let userDetail = await model.getInfoUser(room.host)
         console.log('click');
         view.setActiveScreen('viewYourFriendProfile')
@@ -573,13 +572,13 @@ view.setNavbarInfoUser = () => {
     userName.innerHTML = `${firebase.auth().currentUser.displayName}`
     imgUser.src = `${firebase.auth().currentUser.photoURL}`
 }
-view.setProfileDefault = async() => {
+view.setProfileDefault = async () => {
     document.getElementById('profile-name').innerHTML = `Name: ${firebase.auth().currentUser.displayName}`
     document.getElementById('profile-email').innerHTML = `Email: ${firebase.auth().currentUser.email}`
     let isTeacher = document.getElementById('is-teacher');
     let workAt = document.getElementById('work-at')
     let aboutMe = document.getElementById('about-me')
-    let data = await model.getDataFireStore('users','email');
+    let data = await model.getDataFireStore('users', 'email');
     data.isTeacher ? isTeacher.innerHTML = "Job: Teacher" : isTeacher.innerHTML = "Job: Student"
     data.workAt == undefined ? workAt.innerHTML = `Work at: ` : workAt.innerHTML = `Work at:  ${data.workAt}`
     data.aboutMe == undefined ? aboutMe.innerHTML = `` : aboutMe.innerHTML = data.aboutMe
@@ -596,7 +595,7 @@ view.listenChangeToEditProfile = () => {
     let editProfileBnt = document.getElementById('edit-profile-bnt')
     let editPasswordBnt = document.getElementById('edit-password-bnt')
     let viewRoomOfUser = document.getElementById('view-room-of-current-user')
-    viewRoomOfUser.addEventListener('click', async() => {
+    viewRoomOfUser.addEventListener('click', async () => {
         profileBnt.classList = ''
         editProfileBnt.classList = ''
         editPasswordBnt.classList = ''
@@ -647,7 +646,7 @@ view.listenChangeToEditProfile = () => {
         title.innerHTML = 'Edit Password'
         let resetPasswordForm = document.getElementById('reset-password-form')
         let currentPasswordError = document.getElementById('currentPassword')
-        resetPasswordForm.addEventListener('submit', async(e) => {
+        resetPasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault()
             let data = {
                 currentPassword: {
@@ -664,7 +663,7 @@ view.listenChangeToEditProfile = () => {
                 }
             }
             controller.checkNull(data)
-            let dataUser = await model.getDataFireStore('users','email')
+            let dataUser = await model.getDataFireStore('users', 'email')
             if (resetPasswordForm.currentPassword.value == dataUser.password) {
                 controller.resetPassword(data)
             } else {
@@ -695,7 +694,7 @@ view.setEventListenEditProfile = () => {
 }
 view.listenOnUpdateImage = () => {
     let uploadImg = document.getElementById('upload')
-    uploadImg.addEventListener('change', async(e) => {
+    uploadImg.addEventListener('change', async (e) => {
         let img = document.querySelector('.upload-img img')
         let navImg = document.querySelector('.nav-bar-info-User img')
         let storageRef = firebase.storage().ref();
@@ -710,16 +709,16 @@ view.listenOnUpdateImage = () => {
             console.log(res);
             alert('Upload Image successful')
         })
-        model.updateDataToFireStore('users', {photoURL:linkImg})
+        model.updateDataToFireStore('users', { photoURL: linkImg })
     })
 }
 
 view.getUser = (user) => {
     let infoUser = document.querySelector('.profile-box')
-    user.workAt == undefined? user.workAt=" ":user.workAt = user.workAt;
-    user.aboutMe == undefined?user.aboutMe=" ":user.aboutMe=user.aboutMe;
-    document.querySelector('.upload-img img').src= user.photoURL
-    document.querySelector('.upload-img label').style.display='none'
+    user.workAt == undefined ? user.workAt = " " : user.workAt = user.workAt;
+    user.aboutMe == undefined ? user.aboutMe = " " : user.aboutMe = user.aboutMe;
+    document.querySelector('.upload-img img').src = user.photoURL
+    document.querySelector('.upload-img label').style.display = 'none'
     let html = `    
     <div class="profile-row pd-t-2">
     <div class="info-profile">
@@ -748,192 +747,141 @@ view.getUser = (user) => {
     }
 }
 
-view.addFriendMessage = (content,photoURL)=>{
-   let html =  `
+view.addFriendMessage = (content, photoURL) => {
+    let html = `
    <div class="friend-message">
        <img src="${photoURL}">
        <div class="message">${content}</div>
    </div>
    `
-   return html
+    return html
 }
-view.addYourMessage = (content)=>{
-    let html =  `
+view.addYourMessage = (content) => {
+    let html = `
     <div class="your-message">
         <div class="message">${content}</div>
     </div>
     `
     return html
 }
-view.addListConversation = (data,isActive = false)=>{
-    let html =''
-    if(isActive){
-        if(data.check == false &&data.lassMessageOwner !== firebase.auth().currentUser.email){
+view.addListConversation = (data, isActive = false) => {
+    let html = ''
+    if (isActive) {
+        if (data.check == false && data.lassMessageOwner !== firebase.auth().currentUser.email) {
             html += `
                 <div class="conversation-box active bold">${data.friendEmail[0].toUpperCase()}
-                ${data.friendEmail[data.friendEmail.length-11].toUpperCase()}</div>
+                ${data.friendEmail[data.friendEmail.length - 11].toUpperCase()}</div>
             `
         }
-        else{
+        else {
             html += `
                 <div class="conversation-box active">${data.friendEmail[0].toUpperCase()}
-                ${data.friendEmail[data.friendEmail.length-11].toUpperCase()}</div>
+                ${data.friendEmail[data.friendEmail.length - 11].toUpperCase()}</div>
             `
         }
     }
-    else{
-        if(data.check == false &&data.lassMessageOwner !== firebase.auth().currentUser.email){
+    else {
+        if (data.check == false && data.lassMessageOwner !== firebase.auth().currentUser.email) {
             html += `
                 <div class="conversation-box bold">${data.friendEmail[0].toUpperCase()}
-                ${data.friendEmail[data.friendEmail.length-11].toUpperCase()}</div>
+                ${data.friendEmail[data.friendEmail.length - 11].toUpperCase()}</div>
             `
         }
-        else{
+        else {
             html += `
                 <div class="conversation-box ">${data.friendEmail[0].toUpperCase()}
-                ${data.friendEmail[data.friendEmail.length-11].toUpperCase()}</div>
+                ${data.friendEmail[data.friendEmail.length - 11].toUpperCase()}</div>
             `
         }
     }
     return html
 }
-view.onclickNotification= ()=>{
+view.onclickNotification = () => {
     let notification = document.querySelector('.notification')
     let notificationBox = document.querySelector('.new-notification')
-    notification.addEventListener('click',()=>{
+    notification.addEventListener('click', () => {
         notificationBox.classList.toggle('display-none')
     })
 }
 
-view.loadNotification = async()=>{
-    let notificationBox = document.querySelector('.new-notification')
-    
-    for(let x of model.allConversation)
-    {
-        let friendImg = await model.getInfoUser(x.users.find(
-            (user)=>user!==firebase.auth().currentUser.email))
-        let html = `
-            <div class="sub-notification" id="${x.id}">
-                <div class="owner-notification">
-                    <img src="${friendImg.photoURL}">
-                </div>
-                <div class="notification-box">
-                    <div>${friendImg.email}</div>
-                    <div class="content-notification">
-                        ${x.messages[x.messages.length-1].content}
-                    </div>
-                </div>
-            </div>
-        `
-        notificationBox.insertAdjacentHTML('afterbegin',html)
-        if(model.currentConversation !== null){
-            if(x.id !== model.currentConversation.id && x.check == false){
-                let font = document.querySelector(`#${x.id}`)
-                font.style.fontWeight  = '600'
-            }  
-        }
-    }
-   
-    for(let x of model.allConversation){
-        let a = document.getElementById(`${x.id}`)
-        a.addEventListener('click', async ()=>{
-            a.style.fontWeight = '300'
-            model.currentConversation = {
-                id:x.id,
-                messages: x.messages,
-                users: x.users
-            }
-            let friend = await model.getInfoUser(model.currentConversation.users.find((item)=>item!==firebase.auth().currentUser.email))
-            let messageBox = document.querySelector('.message-box')
-            let html = ''
-            
-            for(item of model.currentConversation.messages){
-                if(item.owner == firebase.auth().currentUser.email){
-                    html += view.addYourMessage(item.content)
-                }   
-                else {
-                    html += view.addFriendMessage(item.content,friend.photoURL)
-                }
-            }
-            messageBox.innerHTML = html
-            let chatbox = document.querySelector('.chat-one-to-one-container')
-            let notification = document.querySelector('.new-notification')
-            let icon = document.getElementById('icon-chat-container')
-            chatbox.classList = 'chat-one-to-one-container'
-            notification.classList = 'new-notification display-none'
-            icon.classList = 'chat-button cursor display-none'
-            let chatTitle = document.querySelector('.top-message-box')
-            chatTitle.innerHTML = `Chat With ${friend.email}`
-        })
-    }
-}
-view.addNotification = async (data,id)=>{
+
+view.addNotification = async (data, id) => {
     console.log(data);
+    lassMessageOwner = data.messages[data.messages.length-1].owner
     let notificationBox = document.querySelector('.new-notification')
+    let icon = document.getElementById('icon-chat-container')
     let html = ''
     let friendImg = await model.getInfoUser(data.users.find(
-        (user)=>user!==firebase.auth().currentUser.email))
+        (user) => user !== firebase.auth().currentUser.email))
     html = `
         <div class="sub-notification" id="${id}">
             <div class="owner-notification">
                 <img src="${friendImg.photoURL}">
             </div>
             <div class="notification-box">
-                <div>${friendImg.email}</div>
-                <div class="content-notification">
-                    ${data.messages[data.messages.length-1].content}
+                <div class="text-email">${friendImg.email}</div>
+                <div class="content-notification text-email">
+                    ${data.messages[data.messages.length - 1].content}
                 </div>
             </div>
         </div>
     `
-    notificationBox.insertAdjacentHTML('afterbegin',html)
-    if(model.currentConversation !== null){
-        if(id !== model.currentConversation.id && data.check == false){
-            let font = document.querySelector(`#${id}`)
-            let icon = document.querySelector('.icon-notification')
-            font.style.fontWeight  = '600'
-            icon.style.display = 'block'
+    notificationBox.insertAdjacentHTML('afterbegin', html)
+    if(lassMessageOwner !== firebase.auth().currentUser.email){
+        if (model.currentConversation !== null) {
+            if (id !== model.currentConversation.id && data.check == false) {
+                let font = document.getElementById(`${id}`)
+                let icon = document.querySelector('.icon-notification')
+                font.style.fontWeight = '600'
+                icon.style.display = 'block'
+            }
+            else if(id == model.currentConversation.id && data.check == false  && icon.classList == 'chat-button cursor'){
+                let font = document.getElementById(`${id}`)
+                let icon = document.querySelector('.icon-notification')
+                font.style.fontWeight = '600'
+                icon.style.display = 'block'
+            }
+        }
+        else {
+            if (data.check == false) {
+                let font = document.getElementById(`${id}`)
+                let icon = document.querySelector('.icon-notification')
+                font.style.fontWeight = '600'
+                icon.style.display = 'block'
+            }
         }
     }
-    else{
-        if(data.check == false){
-            let font = document.querySelector(`#${id}`)
-            let icon = document.querySelector('.icon-notification')
-            font.style.fontWeight  = '600'
-            icon.style.display = 'block'
-        }
-    }   
     let a = document.getElementById(`${id}`)
-    a.addEventListener('click', async ()=>{
+    a.addEventListener('click', async () => {
         a.style.fontWeight = '300'
         model.currentConversation = {
-            id:id,
-            messages: data.messages[data.messages.length-1].messages,
+            id: id,
+            messages: data.messages[data.messages.length - 1].messages,
             users: data.users
         }
         let messageBox = document.querySelector('.message-box')
         let html = ''
-        
-        for(let x of data.messages){
-            if(x.owner == firebase.auth().currentUser.email){
+        model.updateCheckConversation('conversations', id, true)
+        for (let x of data.messages) {
+            if (x.owner == firebase.auth().currentUser.email) {
                 html += view.addYourMessage(x.content)
-            }   
+            }
             else {
-                html += view.addFriendMessage(x.content,friendImg.photoURL)
+                html += view.addFriendMessage(x.content, friendImg.photoURL)
             }
         }
-        
+
         messageBox.innerHTML = html
         let iconMessage = document.querySelector('.icon-notification')
-        
+
         iconMessage.style.display = 'none'
         let chatbox = document.querySelector('.chat-one-to-one-container')
         let notification = document.querySelector('.new-notification')
-        let icon = document.getElementById('icon-chat-container')
         chatbox.classList = 'chat-one-to-one-container'
         notification.classList = 'new-notification display-none'
         icon.classList = 'chat-button cursor display-none'
         let chatTitle = document.querySelector('.top-message-box')
         chatTitle.innerHTML = `Chat With ${friendImg.email}`
+        messageBox.scrollTop = messageBox.scrollHeight
     })
 } 

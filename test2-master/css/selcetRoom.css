@@ -41,7 +41,7 @@
     position: relative;
 }
 
-.nav-bar .nav-bar-info-User div {
+.nav-bar .nav-bar-info-User>div {
     margin: 0 10px;
 }
 .notification .icon-notification {
@@ -59,8 +59,9 @@
     position: relative;
 }
 .new-notification{
+    padding: 15px;
     width:  300px;
-    height: 200px;
+    height: 250px;
     position: absolute;
     background: #fff;
     right: 20px;
@@ -68,13 +69,15 @@
     box-shadow: 0px 3px 10px -5px;
 }
 .sub-notification{
+    margin-top:15px;
     display: flex;
 }
 .notification-box{
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: space-around;
+    overflow: hidden;
 }
 .owner-notification img{
     height: 50px;
@@ -282,19 +285,20 @@
 
 /*----------------- chat one to one box----------------------------------------- */
 .chat-one-to-one-container{
+    border-radius: 10px 10px 0 0;
     background: #fff;
     width: 400px;
     height: 400px;
     position: absolute;
     bottom: 0;
-    right: 0;
+    right: 21px;
     display: flex;
     flex-direction: column;
-    box-shadow: 10px 11px 1px 10px;
+    box-shadow: 0px 0px 6px 0px;
 }
 .chat-one-to-one-container .wrap{
     display: flex;
-    height: 100%;
+    height: 83%;
 }
 .wrap .list-conversation{
     width:15%;
@@ -306,14 +310,15 @@
 }
 .top-message-box{
     color: #fff;
-    border-radius: 10px 0 0 0 ;
-    height: 35px;
+    border-radius: 10px 10px 0 0;
+    flex-grow:1;
     border: none;
     outline: none;
     background: #5858ff;
 }
 .top-input input{
     width: 100%;
+    height: 30px;
 }
 .chat-one-to-one-container .wrap .message-box{
     overflow: scroll;
@@ -355,6 +360,12 @@
     width:30px;
     border-radius: 50%;
 }
+.message-box >div{
+    margin-top:10px
+}
 .conversation-box{
     text-align: center;
+}
+.content-notification{
+    font-size: 13px;
 }

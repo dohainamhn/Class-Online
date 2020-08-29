@@ -113,3 +113,7 @@
 #input-chat-email{
     outline:none;
 }
+.text-email{
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
