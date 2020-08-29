@@ -185,7 +185,9 @@ model.findConversation = async (collection, find, email) => {
 model.getInfoUser = async (email) => {
     let db = firebase.firestore()
     let data = await db.collection('users').where("email", "==", email).get()
+    if(data.docs[0] !== undefined)
     return data.docs[0].data()
+    else return null
 }
 
 model.getTest = async (user) => {

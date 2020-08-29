@@ -84,6 +84,9 @@ agora.createCameraStream = (uid,isTeacher)=>{
             console.log("[ERROR] : publish local stream error: " + err);
             });
             agora.localStreams.camera.stream = localStream;
+            console.log('completed');
+            let signOutBnt = document.getElementById('sign-out')
+            signOutBnt.style.display = 'flex'
         }, 
         (err)=>{
             console.log("[ERROR] : getUserMedia failed", err);

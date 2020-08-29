@@ -215,6 +215,7 @@ view.setActiveScreen = async (screen, id) => {
             {
                 document.getElementById("app").innerHTML = components.classRoomScreen;
                 let signOutBnt = document.getElementById('sign-out')
+                signOutBnt.style.display ='none'
                 let inputChat = document.getElementById('input-chat')
                 let roomInfo = await model.getRoomInfo(id)
 
@@ -311,7 +312,7 @@ view.chat = async () => {
     inputChatEmail.addEventListener('keyup', async (e) => {
         if (e.keyCode == '13') {
             let friend = await model.getInfoUser(inputChatEmail.value)
-            if (inputChatEmail.value == firebase.auth().currentUser.email || friend == undefined) {
+            if (inputChatEmail.value == firebase.auth().currentUser.email || friend == null) {
                 alert('Email is invalid ')
                 return
             }
@@ -383,6 +384,8 @@ view.chat = async () => {
                 messageBox.innerHTML = html
                 messageBox.scrollTop = messageBox.scrollHeight
             }
+            let chatTitle = document.querySelector('.top-message-box')
+            chatTitle.innerHTML = `Chat With ${friend.email}`
         }
     })
     let messageInput = document.querySelector('.input-message input')
